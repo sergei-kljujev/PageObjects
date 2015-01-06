@@ -19,7 +19,7 @@ namespace PageObjects.Controls
         public static IWebContext GetContext(this IWebControlMetadata m)
         {
             var json = m.SupportedContext as String;
-            var context = new JavaScriptSerializer().Deserialize<IEnumerable<ContextElement>>(json);
+            var context = new JavaScriptSerializer().Deserialize<List<ContextElement>>(json);
             return new WebContext(context);
         }
     }

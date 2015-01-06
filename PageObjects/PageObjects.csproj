@@ -60,6 +60,8 @@
     <Compile Include="Controls\TreeView\TreeViewAsp.cs" />
     <Compile Include="Controls\TreeView\TreeViewSL.cs" />
     <Compile Include="Controls\WebControl.cs" />
+    <Compile Include="Exceptions\AmbiguousControlsException.cs" />
+    <Compile Include="Exceptions\MissingControlException.cs" />
     <Compile Include="Factory\IFactory.cs" />
     <Compile Include="Factory\PageFactory.cs" />
     <Compile Include="Helper.cs" />
