@@ -43,12 +43,18 @@ namespace PageObjects.Factory
 
             var allImplementations = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(s => s.GetTypes())
-                .Where(t => interfaceType.IsAssignableFrom(t));
+                .Where(t => interfaceType.IsAssignableFrom(t) && interfaceType != t).ToArray();
 
-            return allImplementations
-                .Where(impl => GetControlAttribute(impl).ControlType == interfaceType &&
-                               GetControlAttribute(impl).SupportedContext.Match(CurrentContext))
-                .ToArray();
+            if (!allImplementations.Any())
+                return null;
+
+            var exports = allImplementations
+                .Where(impl => GetControlAttribute(impl).ControlType == interfaceType).ToArray();
+
+            var matched = exports
+                .Where(impl => CurrentContext.Match(GetControlAttribute(impl).SupportedContext));
+
+            return matched.ToArray();
         }
 
         public Type GetImplementation<T>(IDictionary<Type, IWebContext> matched) 
@@ -70,14 +76,14 @@ namespace PageObjects.Factory
                 maxContextPrecision = currentContextElements.
                     Select(contextType => new {
                         Context = contextType,
-                        Precision = matched.Min(cm => GetControlAttribute(cm.Key).SupportedContext.ContextPrecision(contextType))})
+                        Precision = matched.Min(cm => cm.Value.ContextPrecision(contextType))})
                         .ToDictionary(x => x.Context, x => x.Precision);
 
             // Maximum number of Context Elements, specified with Max Precision..
-            var maxPrecisionElementsCount = matched.Max(cm => GetControlAttribute(cm.Key).SupportedContext.MaxPrecisionMatch(maxContextPrecision));
+            var maxPrecisionElementsCount = matched.Max(cm => cm.Value.MaxPrecisionMatch(maxContextPrecision));
 
             // Number of Most precise Controls
-            var finalControls = matched.Where(t => GetControlAttribute(t.Key).SupportedContext.MaxPrecisionMatch(maxContextPrecision) == maxPrecisionElementsCount).ToArray();
+            var finalControls = matched.Where(t => t.Value.MaxPrecisionMatch(maxContextPrecision) == maxPrecisionElementsCount).ToArray();
 
             if (finalControls.Length > 1)
                 throw new AmbiguousControlsException(typeof(T));

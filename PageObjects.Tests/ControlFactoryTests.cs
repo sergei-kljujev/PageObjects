@@ -44,6 +44,44 @@ namespace PageObjects.Tests
             ALL = 7
         }
 
+        public interface IControl_NoImpl : IWebControl
+        {
+             
+        }
+
+        public interface IControl_NoMatchedImpl : IWebControl
+        {
+
+        }
+
+        [WebControlExport(typeof(IControl_NoMatchedImpl), test2.B2)]
+        public class Control_NoMatchedImpl : IControl_NoMatchedImpl
+        {
+        }
+
+        public interface IControl_1_Impl : IWebControl
+        {
+        }
+        
+        [WebControlExport(typeof(IControl_1_Impl), test1.A1)]
+        public class Control_1_Impl : IControl_1_Impl
+        {
+        }
+
+        public interface IControl_2_Impl : IWebControl
+        {
+        }
+
+        [WebControlExport(typeof(IControl_2_Impl))]
+        public class Control_2_Impl_1 : IControl_2_Impl
+        {
+        }
+
+        [WebControlExport(typeof(IControl_2_Impl), test1.A1)]
+        public class Control_2_Impl_2 : IControl_2_Impl
+        {
+        }
+
         private Mock<IWebContext> CurrentContext;
 
         private ControlFactory TestFactory;
@@ -74,6 +112,57 @@ namespace PageObjects.Tests
             ITestPage DoSomething();
         };
 
+        [Test]
+        public void When_No_Implementations_Then_GetAllMatched_Returns_Empty()
+        {
+            var actual = TestFactory.GetAllMatchedImplementations<IControl_NoImpl>();
+
+            Assert.IsNull(actual);
+        }
+
+
+        [Test]
+        public void When_No_Matched_Implementations_Then_GetAllMatched_Returns_Empty()
+        {
+            
+            CurrentContext.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(false);
+
+            var actual = TestFactory.GetAllMatchedImplementations<IControl_NoMatchedImpl>();
+
+            CollectionAssert.IsEmpty(actual);
+        }
+
+        [Test]
+        public void When_One_Matched_Implementation_Then_GetAllMatched_Returns_It()
+        {
+            CurrentContext.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
+
+            var actual = TestFactory.GetAllMatchedImplementations<IControl_1_Impl>();
+
+            CollectionAssert.AreEquivalent(new [] { typeof(Control_1_Impl)}, actual );
+        }
+
+
+        [Test]
+        public void When_Two_Matched_Implementation_Then_GetAllMatched_Returns_Both()
+        {
+            CurrentContext.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
+
+            var actual = TestFactory.GetAllMatchedImplementations<IControl_2_Impl>();
+
+            CollectionAssert.AreEquivalent(new[] { typeof(Control_2_Impl_2), typeof(Control_2_Impl_1) }, actual);
+        }
+
+
+        [Test]
+        public void When_Two_Matched_Then_Most_Restricted_Implementation_Returned()
+        {
+            CurrentContext.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
+
+            var actual = TestFactory.Generate<IControl_2_Impl>();
+
+            Assert.That(actual, Is.TypeOf(typeof(Control_2_Impl_2)));
+        }
 
         [Test]
         public void When_One_Page_Any_Supported_Then_It_Is_Returned()
@@ -94,21 +183,22 @@ namespace PageObjects.Tests
 
         [Test]
         [ExpectedException(typeof(MissingControlException))]
-        public void When_Context_Not_Match_Then_MissingControlException()
+        public void When_Empty_Dictionary_Then_MissingControlException()
         {
             // Arrange
             var _t = new Dictionary<Type, IWebContext>();
-            
-                _t.Add(
-                    typeof(string),
-                    new WebContext());
-            
-
-
-            CurrentContext.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(false);
 
             // act
             TestFactory.GetImplementation<ITestPage>(_t);
+        }
+
+
+        [Test]
+        [ExpectedException(typeof(MissingControlException))]
+        public void When_Null_Then_MissingControlException()
+        {
+            // act
+            TestFactory.GetImplementation<ITestPage>(null);
         }
 
         [Test]
@@ -118,18 +208,18 @@ namespace PageObjects.Tests
             // Arrange
             var _t = new Dictionary<Type, IWebContext>();
             
-                _t.Add(
-                    typeof (string),
-                    new WebContext());
-                _t.Add(
-                    typeof(int),
-                    new WebContext());
+            var p1_Mock = new Mock<IWebContext>();
+            _t.Add(typeof (string), p1_Mock.Object);
 
-            
+            var p2_Mock = new Mock<IWebContext>();
+            _t.Add(typeof(int), p2_Mock.Object);
 
-
+            p1_Mock.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
+            p1_Mock.Setup(x => x.ContextPrecision(It.IsAny<string>())).Returns(1);
+            p2_Mock.Setup(x => x.ContextPrecision(It.IsAny<string>())).Returns(1);
+            p2_Mock.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
             CurrentContext.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
-
+            
             // act
             TestFactory.GetImplementation<ITestPage>(_t);
         }
@@ -140,18 +230,25 @@ namespace PageObjects.Tests
         {
             // Arrange
             var _t = new Dictionary<Type, IWebContext>();
-            {
-                _t.Add(
-                    typeof (string),
-                    new WebContext(new List<ContextElement>{ new ContextElement(typeof(test1), (uint)test1.A1, (uint)test1.ALL) }));
-                _t.Add(
-                    typeof (int),
-                    new WebContext(new List<ContextElement> { new ContextElement(typeof(test2), (uint)test2.A2, (uint)test2.ALL) }));
-            };
 
+            var p1_Mock = new Mock<IWebContext>();
+            _t.Add(typeof(string), p1_Mock.Object);
 
-            
+            var p2_Mock = new Mock<IWebContext>();
+            _t.Add(typeof(int), p2_Mock.Object);
+            var p1_ContextPrecisionQueue = new Queue<double>();
+            p1_ContextPrecisionQueue.Enqueue(1);
+            p1_ContextPrecisionQueue.Enqueue(0.5);
+            p1_ContextPrecisionQueue.Enqueue(1);
+            var p2_ContextPrecisionQueue = new Queue<double>();
+            p2_ContextPrecisionQueue.Enqueue(1);
+            p2_ContextPrecisionQueue.Enqueue(1);
+            p2_ContextPrecisionQueue.Enqueue(0.5);
 
+            p1_Mock.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
+            p1_Mock.Setup(x => x.ContextPrecision(It.IsAny<string>())).Returns(p1_ContextPrecisionQueue.Dequeue);
+            p2_Mock.Setup(x => x.ContextPrecision(It.IsAny<string>())).Returns(p2_ContextPrecisionQueue.Dequeue);
+            p2_Mock.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
             CurrentContext.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
 
             // act

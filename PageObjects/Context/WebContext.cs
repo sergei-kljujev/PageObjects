@@ -39,13 +39,13 @@ namespace PageObjects.Context
             return true;
         }
 
-        public T ContextValue<T>() 
-            where T: struct, IConvertible
-        {
-            var type = typeof(T).FullName;
+        //public T ContextValue<T>() 
+        //    where T: struct, IConvertible
+        //{
+        //    var type = typeof(T).FullName;
 
-            return (T)(object)ContextElementMask(type);
-        }
+        //    return (T)(object)ContextElementMask(type);
+        //}
 
         public WebContext(object[] contextElements)
         {

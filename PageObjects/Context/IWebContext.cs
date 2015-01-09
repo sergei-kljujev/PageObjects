@@ -19,7 +19,7 @@ namespace PageObjects.Context
 
         int MaxPrecisionMatch(Dictionary<string, double> maxPrecision);
 
-        T ContextValue<T>()
-            where T : struct, IConvertible;
+        //T ContextValue<T>()
+        //    where T : struct, IConvertible;
     }
 }

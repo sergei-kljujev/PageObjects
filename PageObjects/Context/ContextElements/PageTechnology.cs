@@ -6,12 +6,19 @@ using PageObjects.Attributes;
 
 namespace PageObjects.Context.ContextElements
 {
-    [Flags]
-    [ContextElement((uint)PageTechnology.ANY)]
-    public enum PageTechnology
+
+    [ContextElement(ANY)]
+    public class PageTechnology
     {
-        Asp,
-        SL,
-        ANY = Asp | SL
+        public const uint Asp = 1;
+        public const uint SL = 2;
+        
+        
+        public const uint ANY = Asp | SL;
+
+        public static uint GetCurrentContext()
+        {
+            return SL;
+        }
     }
 }
