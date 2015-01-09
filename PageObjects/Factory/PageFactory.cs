@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using PageObjects.Attributes;
 using PageObjects.Context;
 using PageObjects.Controls;
 using PageObjects.Exceptions;
@@ -24,65 +25,76 @@ namespace PageObjects.Factory
         [Import("CurrentContext", RequiredCreationPolicy=CreationPolicy.Shared)]
         private IWebContext CurrentContext;
 
-        [ImportMany(typeof(IWebControl))]
-        internal IEnumerable<Lazy<Type, IWebControlMetadata>> Controls {get; set;}
-
-
         public ControlFactory() 
         { 
         }
 
+        private WebControlExportAttribute GetControlAttribute(Type t)
+        {
+            var attr = (WebControlExportAttribute)Attribute.GetCustomAttribute(t, typeof(WebControlExportAttribute));
 
+            return attr;
+        }
 
+        public Type[] GetAllMatchedImplementations<T>()
+            where T : IWebControl
+        {
+            var interfaceType = typeof(T);
+
+            var allImplementations = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(s => s.GetTypes())
+                .Where(t => interfaceType.IsAssignableFrom(t));
+
+            return allImplementations
+                .Where(impl => GetControlAttribute(impl).ControlType == interfaceType &&
+                               GetControlAttribute(impl).SupportedContext.Match(CurrentContext))
+                .ToArray();
+        }
+
+        public Type GetImplementation<T>(IDictionary<Type, IWebContext> matched) 
+            where T : IWebControl
+        {
+            
+
+            if (matched == null ||
+                matched.Count == 0)
+                throw new MissingControlException(typeof(T));
+
+            if (matched.Count == 1)
+                return matched.First().Key;
+
+            var currentContextElements = CurrentContext.ContextElements.Select(ce => ce.Type);
+
+            // Combined max context precision
+            Dictionary<string, double> maxContextPrecision;
+                maxContextPrecision = currentContextElements.
+                    Select(contextType => new {
+                        Context = contextType,
+                        Precision = matched.Min(cm => GetControlAttribute(cm.Key).SupportedContext.ContextPrecision(contextType))})
+                        .ToDictionary(x => x.Context, x => x.Precision);
+
+            // Maximum number of Context Elements, specified with Max Precision..
+            var maxPrecisionElementsCount = matched.Max(cm => GetControlAttribute(cm.Key).SupportedContext.MaxPrecisionMatch(maxContextPrecision));
+
+            // Number of Most precise Controls
+            var finalControls = matched.Where(t => GetControlAttribute(t.Key).SupportedContext.MaxPrecisionMatch(maxContextPrecision) == maxPrecisionElementsCount).ToArray();
+
+            if (finalControls.Length > 1)
+                throw new AmbiguousControlsException(typeof(T));
+
+            if (finalControls.Length == 1)
+                return finalControls.First().Key;
+
+            throw new InvalidOperationException("Unable to find suitable control implementation for " + typeof(T).FullName);
+        }
 
         public T Generate<T>() where T : IWebControl
         {
-            var controlType = GetImplementation<T>();
+            var matched = GetAllMatchedImplementations<T>().ToDictionary(t => t, t => GetControlAttribute(t).SupportedContext);
+
+            var controlType = GetImplementation<T>(matched);
 
             return (T) Activator.CreateInstance(controlType);
-        }
-
-        public Type GetImplementation<T>() where T : IWebControl
-        {
-            var controlType = typeof(T);
-
-            var supportedControls = Controls.Where(m => m.Metadata.ControlType == controlType &&
-                                        CurrentContext.Match(m.Metadata.GetContext()));
-
-            var currentContextElements = CurrentContext.ContextElements.Select(ce => ce.Type);
-            
-            // Combined max context precision
-            Dictionary<string, double> maxContextPrecision;
-            try
-            {
-                maxContextPrecision = currentContextElements.
-                    Select(t => new KeyValuePair<string, double>(t,
-                        supportedControls.Min(cm => (cm.Metadata.GetContext()).ContextPrecision(t)))).
-                    ToDictionary(x => x.Key, x => x.Value);
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new MissingControlException(controlType, ex);
-            }
-
-
-            var maxPrecisionElementsCount = supportedControls.Max(cm => (cm.Metadata.GetContext()).MaxPrecisionMatch(maxContextPrecision));
-
-            var maxPrecisionElements = supportedControls.Where(cm => (cm.Metadata.GetContext()).MaxPrecisionMatch(maxContextPrecision) == maxPrecisionElementsCount);
-
-            var numControlsFound = maxPrecisionElements.Count();
-
-            if (numControlsFound == 1)
-            {
-                return maxPrecisionElements.FirstOrDefault().Value;
-            }
-
-            if (numControlsFound > 1)
-            {
-                throw new AmbiguousControlsException(controlType);
-            }
-            
-            throw new InvalidOperationException("Unable to get implementation for control "+controlType.FullName);
         }
     }
 }

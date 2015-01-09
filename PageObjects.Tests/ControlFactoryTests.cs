@@ -79,20 +79,14 @@ namespace PageObjects.Tests
         public void When_One_Page_Any_Supported_Then_It_Is_Returned()
         {
             // Arrange
-            var _t = new List<Lazy<Type, IWebControlMetadata>>
-            {
-                new Lazy<Type, IWebControlMetadata>(
-                    () => typeof (string),
-                    new WebControlExportAttribute(typeof (ITestPage)))
-            };
+            var _t = new Dictionary<Type, IWebContext>();
+            _t.Add(typeof (string),new WebContext());
 
-
-            TestFactory.Controls = _t;
 
             CurrentContext.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
 
             // act
-            var actual = TestFactory.GetImplementation<ITestPage>();
+            var actual = TestFactory.GetImplementation<ITestPage>(_t);
             
             // assert
             Assert.That(actual, Is.EqualTo(typeof(string)));
@@ -103,20 +97,18 @@ namespace PageObjects.Tests
         public void When_Context_Not_Match_Then_MissingControlException()
         {
             // Arrange
-            var _t = new List<Lazy<Type, IWebControlMetadata>>
-            {
-                new Lazy<Type, IWebControlMetadata>(
-                    () => typeof (string),
-                    new WebControlExportAttribute(typeof (ITestPage)))
-            };
+            var _t = new Dictionary<Type, IWebContext>();
+            
+                _t.Add(
+                    typeof(string),
+                    new WebContext());
+            
 
-
-            TestFactory.Controls = _t;
 
             CurrentContext.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(false);
 
             // act
-            TestFactory.GetImplementation<ITestPage>();
+            TestFactory.GetImplementation<ITestPage>(_t);
         }
 
         [Test]
@@ -124,24 +116,22 @@ namespace PageObjects.Tests
         public void When_Two_Pages_With_Same_Context_Then_AmbiguousControlException()
         {
             // Arrange
-            var _t = new List<Lazy<Type, IWebControlMetadata>>
-            {
-                new Lazy<Type, IWebControlMetadata>(
-                    () => typeof (string),
-                    new WebControlExportAttribute(typeof (ITestPage))),
-                new Lazy<Type, IWebControlMetadata>(
-                    () => typeof (int),
-                    new WebControlExportAttribute(typeof (ITestPage)))
+            var _t = new Dictionary<Type, IWebContext>();
+            
+                _t.Add(
+                    typeof (string),
+                    new WebContext());
+                _t.Add(
+                    typeof(int),
+                    new WebContext());
 
-            };
+            
 
-
-            TestFactory.Controls = _t;
 
             CurrentContext.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
 
             // act
-            TestFactory.GetImplementation<ITestPage>();
+            TestFactory.GetImplementation<ITestPage>(_t);
         }
 
         [Test]
@@ -149,47 +139,46 @@ namespace PageObjects.Tests
         public void When_Two_Pages_With_Contradicted_Context_Then_AmbiguousControlException()
         {
             // Arrange
-            var _t = new List<Lazy<Type, IWebControlMetadata>>
+            var _t = new Dictionary<Type, IWebContext>();
             {
-                new Lazy<Type, IWebControlMetadata>(
-                    () => typeof (string),
-                    new WebControlExportAttribute(typeof (ITestPage), test1.A1)),
-                new Lazy<Type, IWebControlMetadata>(
-                    () => typeof (int),
-                    new WebControlExportAttribute(typeof (ITestPage), test2.A2))
-
+                _t.Add(
+                    typeof (string),
+                    new WebContext(new List<ContextElement>{ new ContextElement(typeof(test1), (uint)test1.A1, (uint)test1.ALL) }));
+                _t.Add(
+                    typeof (int),
+                    new WebContext(new List<ContextElement> { new ContextElement(typeof(test2), (uint)test2.A2, (uint)test2.ALL) }));
             };
 
 
-            TestFactory.Controls = _t;
+            
 
             CurrentContext.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
 
             // act
-            TestFactory.GetImplementation<ITestPage>();
+            TestFactory.GetImplementation<ITestPage>(_t);
         }
 
         [Test]
         public void When_Two_Pages_Diff_Context_Then_Most_Restricted_Returned()
         {
             // Arrange
-            var _t = new List<Lazy<Type, IWebControlMetadata>>
-            {
-                new Lazy<Type, IWebControlMetadata>(
-                    () => typeof (string),
-                    new WebControlExportAttribute(typeof (ITestPage), test1.A1 | test1.B1)),
-                new Lazy<Type, IWebControlMetadata>(
-                    () => typeof (int),
-                    new WebControlExportAttribute(typeof (ITestPage), test1.A1))
+            var _t = new Dictionary<Type, IWebContext>();
+            
+                _t.Add(
+                    typeof (string),
+                    new WebContext(new List<ContextElement> { new ContextElement(typeof(test1), (uint)(test1.A1 | test1.B1), (uint)test1.ALL) }));
+                _t.Add(
+                    typeof (int),
+                    new WebContext(new List<ContextElement> { new ContextElement(typeof(test1), (uint)test1.A1, (uint)test1.ALL) }));
 
-            };
+            
 
-            TestFactory.Controls = _t;
+            
 
             CurrentContext.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
 
             // act
-            var actual = TestFactory.GetImplementation<ITestPage>();
+            var actual = TestFactory.GetImplementation<ITestPage>(_t);
 
             Assert.That(actual, Is.EqualTo(typeof(int)));
         }

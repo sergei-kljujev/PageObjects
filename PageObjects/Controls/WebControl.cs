@@ -7,7 +7,7 @@ using PageObjects.Factory;
 
 namespace PageObjects.Controls
 {
-    class WebControl : IWebControl
+    public class WebControl : IWebControl
     {
         [Import(typeof(IFactory))]
         protected IFactory Factory;

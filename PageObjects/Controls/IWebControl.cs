@@ -7,7 +7,6 @@ using System.Text;
 namespace PageObjects.Controls
 {
 
-    [InheritedExport(typeof(IWebControl))]
     public interface IWebControl
     {
     }

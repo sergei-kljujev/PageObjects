@@ -9,35 +9,22 @@ using PageObjects.Controls;
 
 namespace PageObjects.Attributes
 {
-    [MetadataAttribute]
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple=false)]
-    public class WebControlExportAttribute : ExportAttribute, IWebControlMetadata
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public class WebControlExportAttribute : Attribute
     {
-        public string SupportedContext { get; set; }
-
-        public IWebContext GetSupportedContext() 
-        {
-            return new WebContext();
-        }
+        public IWebContext SupportedContext { get; set; }
 
         public Type ControlType { get; private set; }
 
-
         public WebControlExportAttribute(Type WebControlType, params object[] RequiredContext)
-            : base(typeof(IWebControl))
         {
-            var c = new WebContext(RequiredContext);
-            SupportedContext = new JavaScriptSerializer().Serialize(c.ContextElements);// (object)new WebContext(RequiredContext);
+            SupportedContext = new WebContext(RequiredContext);
             ControlType = WebControlType;
         }
 
-
-        
         public WebControlExportAttribute(Type WebControlType)
-            : base(typeof(IWebControl))
         {
-            var c = new WebContext();
-            SupportedContext = new JavaScriptSerializer().Serialize(c.ContextElements);
+            SupportedContext = new WebContext();
             ControlType = WebControlType;
         }
     }
