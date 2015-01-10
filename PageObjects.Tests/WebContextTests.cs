@@ -83,7 +83,7 @@ namespace PageObjects.Tests
             var WebContext = new WebContext(new object[] { test1.A1 | test1.B1 });
 
 
-            Assert.That(WebContext.ContextElementMask(typeof(test1).FullName), Is.EqualTo((uint)(int)(test1.A1 | test1.B1)));
+            Assert.That(WebContext.ContextElementMask(typeof(test1)), Is.EqualTo((uint)(int)(test1.A1 | test1.B1)));
         }
 
         [Test]
@@ -178,7 +178,7 @@ namespace PageObjects.Tests
         {
             var WebContext = new WebContext();
 
-            Assert.That(WebContext.ContextPrecision(typeof(test1).FullName), Is.EqualTo(1));
+            Assert.That(WebContext.ContextPrecision(typeof(test1)), Is.EqualTo(1));
         }
 
 
@@ -187,7 +187,7 @@ namespace PageObjects.Tests
         {
             var WebContext = new WebContext(new object[] { test3.ALL });
 
-            Assert.That(WebContext.ContextPrecision(typeof(test3).FullName), Is.EqualTo(1));
+            Assert.That(WebContext.ContextPrecision(typeof(test3)), Is.EqualTo(1));
         }
 
         [Test]
@@ -195,7 +195,7 @@ namespace PageObjects.Tests
         {
             var WebContext = new WebContext(new object[] { test3.A3 | test3.B3 });
 
-            Assert.That(WebContext.ContextPrecision(typeof(test3).FullName), Is.AtMost(0.7).And.AtLeast(0.6));
+            Assert.That(WebContext.ContextPrecision(typeof(test3)), Is.AtMost(0.7).And.AtLeast(0.6));
         }
 
         [Test]
@@ -203,14 +203,14 @@ namespace PageObjects.Tests
         {
             var WebContext = new WebContext(new object[] { test3.A3 });
 
-            Assert.That(WebContext.ContextPrecision(typeof(test3).FullName), Is.AtMost(0.34).And.AtLeast(0.32));
+            Assert.That(WebContext.ContextPrecision(typeof(test3)), Is.AtMost(0.34).And.AtLeast(0.32));
         }
 
         [Test]
         public void When_MaxPrecision_IsEmpty_Then_MaxPrecisionMatch_Is_Number_Of_Elements()
         {
             var WebContext = new WebContext(new object[] { test3.A3, test2.ALL });
-            var maxPrecision = new Dictionary<string, double>();
+            var maxPrecision = new Dictionary<Type, double>();
 
             Assert.That(WebContext.MaxPrecisionMatch(maxPrecision), Is.EqualTo(2));
         }
@@ -219,7 +219,7 @@ namespace PageObjects.Tests
         public void When_All_IsEmpty_Then_MaxPrecisionMatch_Is_0()
         {
             var WebContext = new WebContext();
-            var maxPrecision = new Dictionary<string, double>();
+            var maxPrecision = new Dictionary<Type, double>();
 
             Assert.That(WebContext.MaxPrecisionMatch(maxPrecision), Is.EqualTo(0));
         }
@@ -228,8 +228,8 @@ namespace PageObjects.Tests
         public void When_MaxPrecision_has_OneElement_same_as_WebContext_Then_MaxPrecisionMatch_Is_One()
         {
             var WebContext = new WebContext(new object[] { test3.A3 });
-            var maxPrecision = new Dictionary<string, double>();
-            maxPrecision.Add(typeof(test3).FullName, 1 / (double)3);
+            var maxPrecision = new Dictionary<Type, double>();
+            maxPrecision.Add(typeof(test3), 1 / (double)3);
 
             Assert.That(WebContext.MaxPrecisionMatch(maxPrecision), Is.EqualTo(1));
         }
@@ -238,8 +238,8 @@ namespace PageObjects.Tests
         public void When_MaxPrecision_has_OneElement_less_then_WebContext_Then_MaxPrecisionMatch_Is_Zero()
         {
             var WebContext = new WebContext(new object[] { test3.A3 | test3.B3});
-            var maxPrecision = new Dictionary<string, double>();
-            maxPrecision.Add(typeof(test3).FullName, 1 / (double)3);
+            var maxPrecision = new Dictionary<Type, double>();
+            maxPrecision.Add(typeof(test3), 1 / (double)3);
 
             Assert.That(WebContext.MaxPrecisionMatch(maxPrecision), Is.EqualTo(0));
         }
@@ -249,8 +249,8 @@ namespace PageObjects.Tests
         public void When_MaxPrecision_has_OneElement_more_then_WebContext_Then_MaxPrecisionMatch_Is_One()
         {
             var WebContext = new WebContext(new object[] { test3.A3 });
-            var maxPrecision = new Dictionary<string, double>();
-            maxPrecision.Add(typeof(test3).FullName, 2 / (double)3);
+            var maxPrecision = new Dictionary<Type, double>();
+            maxPrecision.Add(typeof(test3), 2 / (double)3);
 
             Assert.That(WebContext.MaxPrecisionMatch(maxPrecision), Is.EqualTo(1));
         }
@@ -260,8 +260,8 @@ namespace PageObjects.Tests
         public void When_MaxPrecision_has_less_elements_then_MaxPrecisionMatch_Counts_Them()
         {
             var WebContext = new WebContext(new object[] { test3.A3, test1.ALL });
-            var maxPrecision = new Dictionary<string, double>();
-            maxPrecision.Add(typeof(test3).FullName, 2 / (double)3);
+            var maxPrecision = new Dictionary<Type, double>();
+            maxPrecision.Add(typeof(test3), 2 / (double)3);
 
             Assert.That(WebContext.MaxPrecisionMatch(maxPrecision), Is.EqualTo(2));
         }
@@ -270,8 +270,8 @@ namespace PageObjects.Tests
         public void When_MaxPrecision_has_new_element_with_value_1_Then_MaxPrecisionMatch_Count_It()
         {
             var WebContext = new WebContext(new object[] { test3.A3 });
-            var maxPrecision = new Dictionary<string, double>();
-            maxPrecision.Add(typeof(test1).FullName, 1);
+            var maxPrecision = new Dictionary<Type, double>();
+            maxPrecision.Add(typeof(test1), 1);
 
             Assert.That(WebContext.MaxPrecisionMatch(maxPrecision), Is.EqualTo(2));
         }
@@ -280,8 +280,8 @@ namespace PageObjects.Tests
         public void When_MaxPrecision_has_new_element_with_value_Less_Then_1_Then_MaxPrecisionMatch_Does_Not_Count_It()
         {
             var WebContext = new WebContext(new object[] { test3.A3 });
-            var maxPrecision = new Dictionary<string, double>();
-            maxPrecision.Add(typeof(test1).FullName, 0.5);
+            var maxPrecision = new Dictionary<Type, double>();
+            maxPrecision.Add(typeof(test1), 0.5);
 
             Assert.That(WebContext.MaxPrecisionMatch(maxPrecision), Is.EqualTo(1));
         }

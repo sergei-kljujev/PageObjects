@@ -9,15 +9,15 @@ namespace PageObjects.Context
     {
         IEnumerable<ContextElement> ContextElements { get; }
 
-        uint ContextElementMask(string contextType);
+        uint ContextElementMask(Type contextType);
 
-        double ContextPrecision(string contextType);
+        double ContextPrecision(Type contextType);
 
-        bool ContainsElement(string contextType);
+        bool ContainsElement(Type contextType);
 
         bool Match(IWebContext other);
 
-        int MaxPrecisionMatch(Dictionary<string, double> maxPrecision);
+        int MaxPrecisionMatch(Dictionary<Type, double> maxPrecision);
 
         //T ContextValue<T>()
         //    where T : struct, IConvertible;

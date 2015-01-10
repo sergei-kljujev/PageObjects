@@ -8,7 +8,7 @@ namespace PageObjects.Context
 {
     public class ContextElement
     {
-        public string Type { get;  set; }
+        public Type Type { get;  set; }
 
         public uint Mask { get; set; }
 
@@ -20,7 +20,7 @@ namespace PageObjects.Context
 
         public ContextElement(Type contextType, uint mask, uint fullContext) 
         {
-            Type = contextType.FullName;
+            Type = contextType;
             Mask = mask;
             FullContext = fullContext;
         }

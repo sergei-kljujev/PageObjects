@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
@@ -17,16 +18,43 @@ using PageObjects.Exceptions;
 namespace PageObjects.Factory
 {
     
-    [Export(typeof(IFactory))]
+
     public class ControlFactory : IFactory
     {
         private static ControlFactory _instance;
         
         [Import("CurrentContext", RequiredCreationPolicy=CreationPolicy.Shared)]
-        private IWebContext CurrentContext;
+        private ICurrentContext CurrentContext;
 
         public ControlFactory() 
+        {
+
+        }
+
+        private ControlFactory(AggregateCatalog catalog)
         { 
+            var container = new CompositionContainer(catalog);
+
+            container.ComposeParts(this);
+        }
+
+
+        public static ControlFactory Instance { 
+            get {
+                lock (typeof(ControlFactory))
+                {
+                    if (_instance != null)
+                        return _instance;
+
+                    var catalog = new AggregateCatalog();
+                    foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+                        catalog.Catalogs.Add(new AssemblyCatalog(a));
+
+                    _instance = new ControlFactory(catalog);
+
+                    return _instance;
+                }
+            } 
         }
 
         private WebControlExportAttribute GetControlAttribute(Type t)
@@ -72,7 +100,7 @@ namespace PageObjects.Factory
             var currentContextElements = CurrentContext.ContextElements.Select(ce => ce.Type);
 
             // Combined max context precision
-            Dictionary<string, double> maxContextPrecision;
+            Dictionary<Type, double> maxContextPrecision;
                 maxContextPrecision = currentContextElements.
                     Select(contextType => new {
                         Context = contextType,

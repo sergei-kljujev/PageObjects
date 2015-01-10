@@ -82,14 +82,14 @@ namespace PageObjects.Tests
         {
         }
 
-        private Mock<IWebContext> CurrentContext;
+        private Mock<ICurrentContext> CurrentContext;
 
         private ControlFactory TestFactory;
 
         [SetUp]
         public void Compose()
         {
-            CurrentContext = new Mock<IWebContext>();
+            CurrentContext = new Mock<ICurrentContext>();
 
 
             var currentContext = new List<ContextElement>();
@@ -102,7 +102,7 @@ namespace PageObjects.Tests
             TestFactory = new ControlFactory();
 
             var c = new CompositionContainer();
-            c.ComposeExportedValue("CurrentContext", CurrentContext.Object);
+            c.ComposeExportedValue("CurrentContext",CurrentContext.Object);
             c.ComposeParts(TestFactory);
 
         }
@@ -215,8 +215,8 @@ namespace PageObjects.Tests
             _t.Add(typeof(int), p2_Mock.Object);
 
             p1_Mock.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
-            p1_Mock.Setup(x => x.ContextPrecision(It.IsAny<string>())).Returns(1);
-            p2_Mock.Setup(x => x.ContextPrecision(It.IsAny<string>())).Returns(1);
+            p1_Mock.Setup(x => x.ContextPrecision(It.IsAny<Type>())).Returns(1);
+            p2_Mock.Setup(x => x.ContextPrecision(It.IsAny<Type>())).Returns(1);
             p2_Mock.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
             CurrentContext.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
             
@@ -246,8 +246,8 @@ namespace PageObjects.Tests
             p2_ContextPrecisionQueue.Enqueue(0.5);
 
             p1_Mock.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
-            p1_Mock.Setup(x => x.ContextPrecision(It.IsAny<string>())).Returns(p1_ContextPrecisionQueue.Dequeue);
-            p2_Mock.Setup(x => x.ContextPrecision(It.IsAny<string>())).Returns(p2_ContextPrecisionQueue.Dequeue);
+            p1_Mock.Setup(x => x.ContextPrecision(It.IsAny<Type>())).Returns(p1_ContextPrecisionQueue.Dequeue);
+            p2_Mock.Setup(x => x.ContextPrecision(It.IsAny<Type>())).Returns(p2_ContextPrecisionQueue.Dequeue);
             p2_Mock.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
             CurrentContext.Setup(x => x.Match(It.IsAny<IWebContext>())).Returns(true);
 
@@ -279,6 +279,16 @@ namespace PageObjects.Tests
 
             Assert.That(actual, Is.EqualTo(typeof(int)));
         }
+
+        [Test]
+        public void Assert_Control_Factory_Instance_Is_Available() 
+        {
+            var actual = ControlFactory.Instance;
+
+            Assert.IsNotNull(actual);
+        }
+
+
 
     }
 }

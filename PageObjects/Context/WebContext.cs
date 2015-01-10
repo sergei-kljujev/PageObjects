@@ -57,7 +57,7 @@ namespace PageObjects.Context
 
                 if (!t.IsEnum)
                     throw new InvalidOperationException(string.Format("Unable to generate context from element {0} with type {1}.", ce, ce.GetType()));
-                if (ContainsElement(t.FullName))
+                if (ContainsElement(t))
                     throw new InvalidOperationException(string.Format("Unable to add Dublicated Context element {0} {1}",t, ce));
                 
                 var attr = Attribute.GetCustomAttribute(t, typeof(ContextElementAttribute)) as ContextElementAttribute;
@@ -72,7 +72,7 @@ namespace PageObjects.Context
 
         }
 
-        public int MaxPrecisionMatch(Dictionary<string, double> maxPrecision) {
+        public int MaxPrecisionMatch(Dictionary<Type, double> maxPrecision) {
             var ret = 0;
 
             foreach (var t in maxPrecision.Keys)
@@ -89,7 +89,7 @@ namespace PageObjects.Context
             values = new List<ContextElement>();
         }
 
-        public double ContextPrecision(string contextElement) 
+        public double ContextPrecision(Type contextElement) 
         {
             if (!ContainsElement(contextElement))
                 return 1;
@@ -99,17 +99,17 @@ namespace PageObjects.Context
         }
 
 
-        public bool ContainsElement(string contextType)
+        public bool ContainsElement(Type contextType)
         {
             return values.Any(v => v.Type == contextType);
         }
 
-        public uint ContextElementMask(string contextType)
+        public uint ContextElementMask(Type contextType)
         {
             return ContextElementOfType(contextType).Mask;
         }
 
-        private ContextElement ContextElementOfType(string type)
+        private ContextElement ContextElementOfType(Type type)
         {
             return values.FirstOrDefault(v => v.Type == type);
         }

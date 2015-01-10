@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("PageObjects")]
-[assembly: AssemblyDescription("Primitives for Web Objects to use in Automation")]
+[assembly: AssemblyTitle("WebAutomation")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("PageObjects")]
+[assembly: AssemblyProduct("WebAutomation")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("2605224b-4293-454c-a42e-fa113541430a")]
+[assembly: Guid("0a08fcdf-e84b-4816-8693-aba9f7bac9cf")]
 
 // Version information for an assembly consists of the following four values:
 //

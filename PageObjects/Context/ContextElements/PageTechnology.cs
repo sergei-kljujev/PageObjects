@@ -1,24 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
 using PageObjects.Attributes;
 
 namespace PageObjects.Context.ContextElements
 {
+    [Flags]
+    [ContextElement((uint)ANY)]
+    public enum PageTechnology
+    { 
+        Asp, SL, 
+        ANY = Asp | SL
+    }
 
-    [ContextElement(ANY)]
-    public class PageTechnology
+    
+
+    public static class CurrentContext
     {
-        public const uint Asp = 1;
-        public const uint SL = 2;
-        
-        
-        public const uint ANY = Asp | SL;
-
-        public static uint GetCurrentContext()
+        [Export("CurrentContextElement", typeof(ContextElement))]
+        public static ContextElement CurrentPageTechnology 
         {
-            return SL;
+            get
+            {
+                return new ContextElement(typeof(PageTechnology), (uint)PageTechnology.Asp, (uint)PageTechnology.ANY);
+            }
         }
     }
+
+    
 }
