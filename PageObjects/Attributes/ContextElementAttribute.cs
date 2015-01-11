@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PageObjects.Attributes
 {
-    [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    [AttributeUsage(AttributeTargets.Enum, AllowMultiple=false, Inherited=false)]
     public class ContextElementAttribute : Attribute
     {
         public uint FullContext;

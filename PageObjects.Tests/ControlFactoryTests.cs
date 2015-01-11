@@ -54,7 +54,7 @@ namespace PageObjects.Tests
 
         }
 
-        [WebControlExport(typeof(IControl_NoMatchedImpl), test2.B2)]
+        [WebPage(typeof(IControl_NoMatchedImpl), test2.B2)]
         public class Control_NoMatchedImpl : IControl_NoMatchedImpl
         {
         }
@@ -63,7 +63,7 @@ namespace PageObjects.Tests
         {
         }
         
-        [WebControlExport(typeof(IControl_1_Impl), test1.A1)]
+        [WebPage(typeof(IControl_1_Impl), test1.A1)]
         public class Control_1_Impl : IControl_1_Impl
         {
         }
@@ -72,12 +72,12 @@ namespace PageObjects.Tests
         {
         }
 
-        [WebControlExport(typeof(IControl_2_Impl))]
+        [WebPage(typeof(IControl_2_Impl))]
         public class Control_2_Impl_1 : IControl_2_Impl
         {
         }
 
-        [WebControlExport(typeof(IControl_2_Impl), test1.A1)]
+        [WebPage(typeof(IControl_2_Impl), test1.A1)]
         public class Control_2_Impl_2 : IControl_2_Impl
         {
         }

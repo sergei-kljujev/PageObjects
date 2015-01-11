@@ -9,19 +9,19 @@ namespace PageObjects.Context
 {
     public class WebContext : IWebContext
     {
-        private IEnumerable<ContextElement> values;
+        //private IEnumerable<ContextElement> values;
 
         public WebContext(IEnumerable<ContextElement> elements)
         {
-            values = elements;
+            ContextElements = elements;
         }
 
-        public IEnumerable<ContextElement> ContextElements
+        [ImportMany("CurrentContextElement")]
+        public virtual IEnumerable<ContextElement> ContextElements
         {
-            get
-            {
-                return values;
-            }
+            get;
+            
+            protected set;
         }
 
         public bool Match(IWebContext other)
@@ -49,7 +49,7 @@ namespace PageObjects.Context
 
         public WebContext(object[] contextElements)
         {
-            values = new List<ContextElement>();
+            ContextElements = new List<ContextElement>();
 
             foreach (var ce in contextElements)
             {
@@ -67,7 +67,7 @@ namespace PageObjects.Context
                     throw new InvalidOperationException("Please specify FullContext at the ContextElement attribute of enum - "+t.FullName);
                 }
                 
-                (values as List<ContextElement>).Add(new ContextElement(t, (uint)(int)ce, (uint)attr.FullContext));
+                (ContextElements as List<ContextElement>).Add(new ContextElement(t, (uint)(int)ce, (uint)attr.FullContext));
             }
 
         }
@@ -80,13 +80,13 @@ namespace PageObjects.Context
                 if (ContextPrecision(t) <= maxPrecision[t])
                     ret++;
             }
-            ret += values.Select(v => v.Type).Count(k => !maxPrecision.ContainsKey(k));
+            ret += ContextElements.Select(v => v.Type).Count(k => !maxPrecision.ContainsKey(k));
             return ret;
         }
 
         public WebContext() 
         {
-            values = new List<ContextElement>();
+            ContextElements = new List<ContextElement>();
         }
 
         public double ContextPrecision(Type contextElement) 
@@ -101,7 +101,7 @@ namespace PageObjects.Context
 
         public bool ContainsElement(Type contextType)
         {
-            return values.Any(v => v.Type == contextType);
+            return ContextElements.Any(v => v.Type == contextType);
         }
 
         public uint ContextElementMask(Type contextType)
@@ -111,7 +111,7 @@ namespace PageObjects.Context
 
         private ContextElement ContextElementOfType(Type type)
         {
-            return values.FirstOrDefault(v => v.Type == type);
+            return ContextElements.FirstOrDefault(v => v.Type == type);
         }
         //public Dictionary<Type, double> ContextPrecision
         //{

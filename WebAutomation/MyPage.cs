@@ -17,7 +17,7 @@ namespace WebAutomation
         string GetInfo();
     }
 
-    [WebControlExport(typeof(IMyPage))]
+    [WebPage(typeof(IMyPage))]
     public class MyPage : WebControl, IMyPage 
     {
         public void AssertIsVisible()
@@ -30,26 +30,26 @@ namespace WebAutomation
             return this;
         }
 
-        public virtual string GetInfo() {
+        public string GetInfo() {
             return this.GetType().FullName;
         }
     }
 
-    [WebControlExport(typeof(IMyPage), PageTechnology.SL)]
+    [WebPage(typeof(IMyPage), PageTechnology.SL)]
     public class MyNonMatchedPage : MyPage
     { }
 
-    [WebControlExport(typeof(IMyPage), PageTechnology.Asp)]
-    public class MyRestrictedPage1 : MyPage
+    [WebPage(typeof(IMyPage), PageTechnology.ANY, MyContext.test3)]
+    public class MyRestrictedPage1 : MyPage, IMyPage
     {
-        public override string GetInfo()
+        public string GetInfo()
         {
             return "Restricted overriden " + this.GetType().FullName;
         }
     }
 
 
-    [WebControlExport(typeof(IMyPage), PageTechnology.Asp, MyContext.test1)]
+    [WebPage(typeof(IMyPage), PageTechnology.Asp, MyContext.NEW)]
     public class MyRestrictedPage2 : MyRestrictedPage1, IMyPage
     {
 

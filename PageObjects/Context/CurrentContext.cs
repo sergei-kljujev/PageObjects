@@ -11,10 +11,26 @@ using PageObjects.Attributes;
 namespace PageObjects.Context
 {
     [Export("CurrentContext", typeof(ICurrentContext))]
-    public class CurrentContext : WebContext, ICurrentContext
+    internal class CurrentContext : WebContext, ICurrentContext
     {
-        [ImportMany("CurrentContextElement")]
-        public new IEnumerable<ContextElement> ContextElements { get; private set; }
+        /// <summary>
+        /// Default Constructor, used by MEF
+        /// </summary>
+        public CurrentContext()
+        {
+        }
+
+        /// <summary>
+        /// Constructor for Unit Tests 
+        /// </summary>
+        /// <param name="contextElements"></param>
+        internal CurrentContext(IEnumerable<ContextElement> contextElements) : base(contextElements)
+        {
+        }
+
+
+//        [ImportMany("CurrentContextElement")]
+//        public IEnumerable<ContextElement> ContextElements { get; private set; }
 
         public void AssertCurrentContextValid()
         {
@@ -27,18 +43,19 @@ namespace PageObjects.Context
             {
                 var elements = string.Empty;
 
-                AllElements
-                    .Where(ac => ContextElements.Any(ce => ac == ce.Type))
-                    .Select(ac => elements += string.IsNullOrEmpty(elements) ? "(" : ", " + ac.FullName);
-                elements += string.IsNullOrEmpty(elements) ? "No Context Defined" : ")";
+                foreach (var el in AllElements.Where(ac => ContextElements.All(ce => ac != ce.Type)))
+                {
+                    elements += string.IsNullOrEmpty(elements) ? "(" : ", "; 
+                    elements += el.FullName;
+                }
+                elements += ")";
 
                 throw new InvalidOperationException("Current Context is not defined for some Attributed Context Element types: " + elements);
             }
-        }
-
-        internal CurrentContext(IEnumerable<ContextElement> contextElements) 
-        {
-            ContextElements = contextElements;
+            else if (!AllElements.Any())
+            {
+                throw new InvalidOperationException("No Context Elements defined in the project.");
+            }
         }
 
         private IEnumerable<Type> AllContextElements() 

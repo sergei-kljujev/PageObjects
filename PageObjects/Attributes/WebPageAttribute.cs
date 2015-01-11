@@ -10,19 +10,19 @@ using PageObjects.Controls;
 namespace PageObjects.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class WebControlExportAttribute : Attribute
+    public class WebPageAttribute : Attribute
     {
         public IWebContext SupportedContext { get; set; }
 
         public Type ControlType { get; private set; }
 
-        public WebControlExportAttribute(Type WebControlType, params object[] RequiredContext)
+        public WebPageAttribute(Type WebControlType, params object[] RequiredContext)
         {
             SupportedContext = new WebContext(RequiredContext);
             ControlType = WebControlType;
         }
 
-        public WebControlExportAttribute(Type WebControlType)
+        public WebPageAttribute(Type WebControlType)
         {
             SupportedContext = new WebContext();
             ControlType = WebControlType;

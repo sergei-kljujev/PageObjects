@@ -57,9 +57,9 @@ namespace PageObjects.Factory
             } 
         }
 
-        private WebControlExportAttribute GetControlAttribute(Type t)
+        private WebPageAttribute GetControlAttribute(Type t)
         {
-            var attr = (WebControlExportAttribute)Attribute.GetCustomAttribute(t, typeof(WebControlExportAttribute));
+            var attr = (WebPageAttribute)Attribute.GetCustomAttribute(t, typeof(WebPageAttribute));
 
             return attr;
         }
@@ -129,6 +129,11 @@ namespace PageObjects.Factory
             var controlType = GetImplementation<T>(matched);
 
             return (T) Activator.CreateInstance(controlType);
+        }
+
+        public void AssertCurrentContextIsValid()
+        {
+            CurrentContext.AssertCurrentContextValid();
         }
     }
 }

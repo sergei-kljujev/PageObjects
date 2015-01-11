@@ -11,7 +11,8 @@ namespace PageObjects.Context.ContextElements
     [ContextElement((uint)ANY)]
     public enum PageTechnology
     { 
-        Asp, SL, 
+        Asp = 1, 
+        SL = 2, 
         ANY = Asp | SL
     }
 
@@ -19,7 +20,7 @@ namespace PageObjects.Context.ContextElements
 
     public static class CurrentContext
     {
-        [Export("CurrentContextElement", typeof(ContextElement))]
+        [CurrentContext]
         public static ContextElement CurrentPageTechnology 
         {
             get

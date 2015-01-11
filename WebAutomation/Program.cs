@@ -11,6 +11,7 @@ namespace WebAutomation
         static void Main(string[] args)
         {
             var f = ControlFactory.Instance;
+            f.AssertCurrentContextIsValid();
 
             var p = f.Generate<IMyPage>();
 

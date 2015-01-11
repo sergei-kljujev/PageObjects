@@ -14,20 +14,24 @@ namespace WebAutomation
     [ContextElement((uint)ANY)]
     public enum MyContext
     {
-        test1, test2, test3, test4,
-        ANY = test1 | test2 | test3 | test4
+        test1 = 1, 
+        test2 = 2, 
+        test3 = 4, 
+        test4 = 8,
+        ANY = test1 | test2 | test3 | test4,
+        NEW = test3 | test4
     }
 
 
 
     public static class ContextHelper
     {
-        [Export("CurrentContextElement", typeof(ContextElement))]
+        [CurrentContext]
         public static ContextElement CurrentPageTechnology
         {
             get
             {
-                return new ContextElement(typeof(MyContext), (uint)MyContext.test1, (uint)MyContext.ANY);
+                return new ContextElement(typeof(MyContext), (uint)MyContext.test3, (uint)MyContext.ANY);
             }
         }
     }
