@@ -39,7 +39,7 @@ namespace WebAutomation
     public class MyNonMatchedPage : MyPage
     { }
 
-    [WebPage(typeof(IMyPage), PageTechnology.ANY, MyContext.test3)]
+    [WebPage(typeof(IMyPage), PageTechnology.Asp, MyContext.ANY)]
     public class MyRestrictedPage1 : MyPage, IMyPage
     {
         public string GetInfo()
@@ -49,13 +49,22 @@ namespace WebAutomation
     }
 
 
-    [WebPage(typeof(IMyPage), PageTechnology.Asp, MyContext.NEW)]
+    [WebPage(typeof(IMyPage), PageTechnology.Asp, MyContext.test2)]
     public class MyRestrictedPage2 : MyRestrictedPage1, IMyPage
     {
 
         public string GetInfo()
         {
             return "Restricted overriden 2 " + this.GetType().FullName;
+        }
+    }
+
+    [WebPage(typeof(IMyPage), PageTechnology.Asp, MyContext.NEW)]
+    public class MyAmbiguousPage : MyRestrictedPage2, IMyPage
+    {
+        public new string GetInfo()
+        {
+            return "Ambiguous overriden " + this.GetType().FullName;
         }
     }
 }

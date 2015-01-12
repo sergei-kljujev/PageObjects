@@ -114,7 +114,7 @@ namespace PageObjects.Factory
             var finalControls = matched.Where(t => t.Value.MaxPrecisionMatch(maxContextPrecision) == maxPrecisionElementsCount).ToArray();
 
             if (finalControls.Length > 1)
-                throw new AmbiguousControlsException(typeof(T));
+                throw new AmbiguousControlsException(typeof(T), finalControls.Select(f => f.Key));
 
             if (finalControls.Length == 1)
                 return finalControls.First().Key;

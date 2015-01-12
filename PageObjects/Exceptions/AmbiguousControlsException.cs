@@ -20,5 +20,12 @@ namespace PageObjects.Exceptions
         {
         }
 
+        public AmbiguousControlsException(Type controlInterface, IEnumerable<Type> implementations)
+            : base(string.Format("{0} - Multiple suitable implementations found: ({1}).  Please restrict context so that only one would suite for current context.",
+            controlInterface.FullName,
+            string.Join("; ", implementations)))
+        {
+        }
+
     }
 }

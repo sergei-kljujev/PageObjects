@@ -20,6 +20,7 @@ namespace PageObjects.Exceptions
         public MissingControlException(Type controlInterface, Exception inner) :
             base(string.Format("{0} - Unable to find suitable implementation.", controlInterface.FullName), inner)
         {
+            
         }
 
     }
