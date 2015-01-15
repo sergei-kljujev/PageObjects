@@ -124,7 +124,9 @@ namespace PageObjects.Factory
 
         public T Generate<T>() where T : IWebControl
         {
-            var matched = GetAllMatchedImplementations<T>().ToDictionary(t => t, t => GetControlAttribute(t).SupportedContext);
+            var matched = GetAllMatchedImplementations<T>()
+                .ToDictionary(t => t, 
+                              t => GetControlAttribute(t).SupportedContext);
 
             var controlType = GetImplementation<T>(matched);
 

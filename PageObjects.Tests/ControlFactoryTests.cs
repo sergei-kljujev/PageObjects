@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.ComponentModel.Composition.Primitives;
 using Moq;
 using NUnit.Framework;
 using PageObjects.Attributes;
@@ -103,8 +104,8 @@ namespace PageObjects.Tests
 
             var c = new CompositionContainer();
             c.ComposeExportedValue("CurrentContext",CurrentContext.Object);
-            c.ComposeParts(TestFactory);
 
+            c.ComposeParts(TestFactory);
         }
 
         public interface ITestPage : IPageObject
